@@ -36,11 +36,12 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
   Future<void> _load() async {
     final store = LearningProgressStore.instance;
     final values = await Future.wait([store.xp, store.completed]);
-    if (mounted)
+    if (mounted) {
       setState(() {
         _xp = values[0] as int;
         _completed = values[1] as Set<String>;
       });
+    }
   }
 
   LearningChallenge get _challenge => _challenges[_index];
@@ -68,9 +69,10 @@ class _ChallengeScreenState extends State<ChallengeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    if (_challenges.isEmpty)
+    if (_challenges.isEmpty) {
       return const Scaffold(
           body: Center(child: Text('No challenges available yet.')));
+    }
     final done = _completed.contains(_challenge.id);
     final correct = _selected == _challenge.answerIndex;
     return Scaffold(

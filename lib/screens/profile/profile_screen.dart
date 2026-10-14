@@ -26,11 +26,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _load() async {
     final s = LearningProgressStore.instance;
     final data = await Future.wait([s.xp, s.completed]);
-    if (mounted)
+    if (mounted) {
       setState(() {
         _xp = data[0] as int;
         _done = data[1] as Set<String>;
       });
+    }
   }
 
   @override

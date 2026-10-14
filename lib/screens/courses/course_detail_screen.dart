@@ -13,6 +13,7 @@ import '../../widgets/glass_card.dart';
 import '../../widgets/pressable.dart';
 import '../../widgets/reveal.dart';
 import 'challenge_screen.dart';
+import 'course_learning_screen.dart';
 
 class CourseDetailScreen extends StatefulWidget {
   const CourseDetailScreen(
@@ -172,6 +173,42 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                                 _ModuleTile(index: i + 1, module: c.modules[i]),
                           ),
                       ],
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                  Reveal(
+                    child: GlassCard(
+                      selected: true,
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('COURSE LEARNING', style: AppText.label),
+                          const SizedBox(height: 6),
+                          Text('Classes & lessons', style: AppText.h2),
+                          const SizedBox(height: 5),
+                          Text(
+                            'Open this course’s live schedule or recorded lesson outline. Demo previews do not enroll you.',
+                            style: AppText.caption,
+                          ),
+                          const SizedBox(height: 12),
+                          Wrap(spacing: 9, runSpacing: 9, children: [
+                            AppButton(
+                              label: 'Live Classes',
+                              icon: Icons.sensors_outlined,
+                              primary: false,
+                              onTap: () => CourseLearningScreen.open(context, c,
+                                  tab: CourseLearningTab.live),
+                            ),
+                            AppButton(
+                              label: 'Recorded Classes',
+                              icon: Icons.play_lesson_outlined,
+                              onTap: () =>
+                                  CourseLearningScreen.open(context, c),
+                            ),
+                          ]),
+                        ],
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),

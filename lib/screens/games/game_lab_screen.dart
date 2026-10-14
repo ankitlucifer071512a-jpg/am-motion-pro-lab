@@ -14,6 +14,7 @@ import 'learning_community_screen.dart';
 import 'creative_verse_arena_screen.dart';
 import 'creative_project_workspace_screen.dart';
 import 'neon_rush_screen.dart';
+import 'motion_dash_screen.dart';
 import 'studio_coach_screen.dart';
 import 'three_d_studio_screen.dart';
 import 'client_work_lab_screen.dart';
@@ -136,6 +137,14 @@ class GameLabScreen extends StatelessWidget {
                 'Swipe, jump, slide and collect energy in three neon worlds',
             onTap: () => Navigator.push(
                 context, AppRoutes.fadeScale(const NeonRushScreen()))),
+        const SizedBox(height: 10),
+        _ActionCard(
+            icon: Icons.blur_circular_rounded,
+            title: 'Motion Dash · Color Cube Runner',
+            subtitle:
+                'Match glowing cube colors, dodge track blockers, and clear creative challenges.',
+            onTap: () => Navigator.push(
+                context, AppRoutes.fadeScale(const MotionDashScreen()))),
         const SizedBox(height: 10),
         _ActionCard(
             icon: Icons.workspaces_outline,

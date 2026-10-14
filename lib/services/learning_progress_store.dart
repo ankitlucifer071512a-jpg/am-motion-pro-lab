@@ -13,6 +13,26 @@ class LearningProgressStore {
   static const _neonHistoryKey = 'neon_rush_history_v1';
   static const _neonAchievementsKey = 'neon_rush_achievements_v1';
   static const _neonTrailKey = 'neon_rush_trail_v1';
+  static const _motionDashBestKey = 'motion_dash_best_v1';
+  static const _motionDashUnlockedKey = 'motion_dash_unlocked_stage_v1';
+  static const _motionDashUnlockedRoundKey = 'motion_dash_unlocked_round_v1';
+  static const _motionDashCompletedRoundsKey =
+      'motion_dash_completed_rounds_v1';
+  static const _courseLessonsKey = 'course_lessons_completed_demo_v1';
+
+  Future<Set<String>> get completedCourseLessons async =>
+      (await SharedPreferences.getInstance())
+          .getStringList(_courseLessonsKey)
+          ?.toSet() ??
+      {};
+
+  Future<void> completeCourseLesson(String courseId, String lessonId) async {
+    final prefs = await SharedPreferences.getInstance();
+    final completed =
+        prefs.getStringList(_courseLessonsKey)?.toSet() ?? <String>{};
+    completed.add('$courseId:$lessonId');
+    await prefs.setStringList(_courseLessonsKey, completed.toList());
+  }
 
   Future<int> get xp async =>
       (await SharedPreferences.getInstance()).getInt(_xpKey) ?? 0;
@@ -104,4 +124,58 @@ class LearningProgressStore {
 
   Future<void> setNeonRushOption(String key, bool value) async =>
       (await SharedPreferences.getInstance()).setBool('neon_rush_$key', value);
+
+  Future<int> get motionDashBest async =>
+      (await SharedPreferences.getInstance()).getInt(_motionDashBestKey) ?? 0;
+
+  Future<int> get motionDashUnlockedStage async =>
+      (await SharedPreferences.getInstance()).getInt(_motionDashUnlockedKey) ??
+      1;
+
+  Future<int> get motionDashUnlockedRound async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(_motionDashUnlockedRoundKey) ??
+        prefs.getInt(_motionDashUnlockedKey) ??
+        1;
+  }
+
+  Future<int> get motionDashCompletedRounds async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getInt(_motionDashCompletedRoundsKey) ?? 0;
+  }
+
+  Future<void> recordMotionDashRun(int score, int reachedStage) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (score > (prefs.getInt(_motionDashBestKey) ?? 0)) {
+      await prefs.setInt(_motionDashBestKey, score);
+    }
+    final unlocked = prefs.getInt(_motionDashUnlockedKey) ?? 1;
+    if (reachedStage > unlocked) {
+      await prefs.setInt(_motionDashUnlockedKey, reachedStage);
+    }
+  }
+
+  Future<void> recordMotionDashRoundCompleted(int score, int round) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (score > (prefs.getInt(_motionDashBestKey) ?? 0)) {
+      await prefs.setInt(_motionDashBestKey, score);
+    }
+    final unlocked = prefs.getInt(_motionDashUnlockedRoundKey) ??
+        prefs.getInt(_motionDashUnlockedKey) ??
+        1;
+    if (round + 1 > unlocked) {
+      await prefs.setInt(_motionDashUnlockedRoundKey, round + 1);
+    }
+    final completed = prefs.getInt(_motionDashCompletedRoundsKey) ?? 0;
+    if (round > completed) {
+      await prefs.setInt(_motionDashCompletedRoundsKey, round);
+    }
+  }
+
+  Future<void> recordMotionDashBestScore(int score) async {
+    final prefs = await SharedPreferences.getInstance();
+    if (score > (prefs.getInt(_motionDashBestKey) ?? 0)) {
+      await prefs.setInt(_motionDashBestKey, score);
+    }
+  }
 }

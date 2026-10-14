@@ -115,8 +115,9 @@ class _SupportScreenState extends State<SupportScreen> {
                     width: double.infinity,
                     child: FilledButton.icon(
                         onPressed: () {
-                          if (_formKey.currentState!.validate())
+                          if (_formKey.currentState!.validate()) {
                             setState(() => _preview = true);
+                          }
                         },
                         icon: const Icon(Icons.drafts_outlined),
                         label: const Text('Preview request'))),
@@ -161,18 +162,20 @@ class _SupportScreenState extends State<SupportScreen> {
             tooltip: 'Copy',
             onPressed: () async {
               await Clipboard.setData(ClipboardData(text: value));
-              if (context.mounted)
+              if (context.mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(content: Text('Copied contact details')));
+              }
             },
             icon: const Icon(Icons.copy_outlined, size: 18))
       ]);
 
   Future<void> _openContact(BuildContext context, Uri uri) async {
     final opened = await launchUrl(uri, mode: LaunchMode.externalApplication);
-    if (!opened && context.mounted)
+    if (!opened && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
           content: Text(
               'No compatible contact app was found. Use the contact details above.')));
+    }
   }
 }
