@@ -19,10 +19,11 @@ class AmBottomNav extends StatelessWidget {
   static const items = [
     NavItemData('Home', Icons.home_outlined, Icons.home_rounded),
     NavItemData('Courses', Icons.grid_view_outlined, Icons.grid_view_rounded),
-    NavItemData('My Learning', Icons.play_circle_outline_rounded,
-        Icons.play_circle_rounded),
-    NavItemData(
-        'Support', Icons.headset_mic_outlined, Icons.headset_mic_rounded),
+    NavItemData('Game Lab', Icons.extension_outlined, Icons.extension_rounded),
+    NavItemData('Purchase Courses', Icons.shopping_bag_outlined,
+        Icons.shopping_bag_rounded),
+    NavItemData('Notifications', Icons.notifications_outlined,
+        Icons.notifications_rounded),
     NavItemData('Profile', Icons.person_outline_rounded, Icons.person_rounded),
   ];
 

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 /// Slight scale-down on tap. Wrap any tappable widget.
 class Pressable extends StatefulWidget {
-  const Pressable({super.key, required this.child, this.onTap, this.scale = 0.97});
+  const Pressable(
+      {super.key, required this.child, this.onTap, this.scale = 0.97});
   final Widget child;
   final VoidCallback? onTap;
   final double scale;
@@ -30,7 +31,21 @@ class _PressableState extends State<Pressable> {
         scale: _down ? widget.scale : 1.0,
         duration: const Duration(milliseconds: 110),
         curve: Curves.easeOut,
-        child: widget.child,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          decoration: BoxDecoration(
+            boxShadow: _down
+                ? [
+                    BoxShadow(
+                      color: const Color(0xFF60A5FA).withValues(alpha: .16),
+                      blurRadius: 18,
+                      spreadRadius: 1,
+                    ),
+                  ]
+                : const [],
+          ),
+          child: widget.child,
+        ),
       ),
     );
   }

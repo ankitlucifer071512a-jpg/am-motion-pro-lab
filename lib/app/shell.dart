@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 
-import '../screens/common/placeholder_screen.dart';
 import '../screens/courses/courses_screen.dart';
+import '../screens/courses/purchase_courses_screen.dart';
+import '../screens/games/game_lab_screen.dart';
 import '../screens/home/home_screen.dart';
+import '../screens/notifications/notifications_screen.dart';
+import '../screens/profile/profile_screen.dart';
 import '../widgets/ambient_background.dart';
 import '../widgets/bottom_nav.dart';
 
-/// Main app frame: one shared animated background + 5-tab bottom navigation.
+/// Main app frame: shared background + six-tab navigation and back history.
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
 
@@ -16,13 +19,23 @@ class AppShell extends StatefulWidget {
 
 class _AppShellState extends State<AppShell> {
   int _index = 0;
+  final List<int> _history = [];
   final Set<int> _visited = {0}; // tabs are built lazily on first visit
 
   void _go(int i) {
     if (i == _index) return;
     setState(() {
+      _history.add(_index);
       _index = i;
       _visited.add(i);
+    });
+  }
+
+  void _back() {
+    if (_index == 0 && _history.isEmpty) return;
+    setState(() {
+      _index = _history.isEmpty ? 0 : _history.removeLast();
+      _visited.add(_index);
     });
   }
 
@@ -33,42 +46,52 @@ class _AppShellState extends State<AppShell> {
       case 1:
         return const CoursesScreen();
       case 2:
-        return const PlaceholderScreen(
-          title: 'My Learning',
-          icon: Icons.play_circle_outline_rounded,
-          message: 'Your purchased courses, progress and lessons will appear here after login is added.',
-        );
+        return const GameLabScreen();
       case 3:
-        return const PlaceholderScreen(
-          title: 'Support',
-          icon: Icons.headset_mic_outlined,
-          message: 'WhatsApp, phone, email and support tickets are coming in a later phase.',
+        return const PurchaseCoursesScreen();
+      case 4:
+        return NotificationsScreen(
+          onBack: _back,
+          onOpenCourses: _openCourseCatalog,
         );
       default:
-        return const PlaceholderScreen(
-          title: 'Profile',
-          icon: Icons.person_outline_rounded,
-          message: 'Profile, certificates and payment history are coming after login is added.',
-        );
+        return const ProfileScreen();
     }
+  }
+
+  void _openCourseCatalog() {
+    Navigator.of(context).push(MaterialPageRoute<void>(
+      builder: (_) => Scaffold(
+        appBar: AppBar(title: const Text('Courses')),
+        body: const AmbientBackground(
+          child: SafeArea(child: CoursesScreen()),
+        ),
+      ),
+    ));
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: AmbientBackground(
-        child: SafeArea(
-          bottom: false,
-          child: IndexedStack(
-            index: _index,
-            children: [
-              for (var i = 0; i < AmBottomNav.items.length; i++)
-                _visited.contains(i) ? _page(i) : const SizedBox.shrink(),
-            ],
+    return PopScope<Object?>(
+      canPop: _index == 0 && _history.isEmpty,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) _back();
+      },
+      child: Scaffold(
+        body: AmbientBackground(
+          child: SafeArea(
+            bottom: false,
+            child: IndexedStack(
+              index: _index,
+              children: [
+                for (var i = 0; i < AmBottomNav.items.length; i++)
+                  _visited.contains(i) ? _page(i) : const SizedBox.shrink(),
+              ],
+            ),
           ),
         ),
+        bottomNavigationBar: AmBottomNav(index: _index, onChanged: _go),
       ),
-      bottomNavigationBar: AmBottomNav(index: _index, onChanged: _go),
     );
   }
 }

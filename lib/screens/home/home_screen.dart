@@ -8,23 +8,49 @@ import '../../widgets/brand_logo.dart';
 import '../../widgets/course_card.dart';
 import '../../widgets/glass_card.dart';
 import '../../widgets/light_sweep_text.dart';
+import '../../widgets/premium_lighting.dart';
 import '../../widgets/reveal.dart';
 import '../../widgets/section_header.dart';
 import '../courses/course_detail_screen.dart';
+import '../profile/support_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key, required this.onNavigate});
 
-  /// Switches the bottom-nav tab (1 = Courses, 3 = Support).
+  /// Switches the bottom-nav tab (1 = Courses, 2 = Game Lab).
   final ValueChanged<int> onNavigate;
 
   static const _why = [
-    (Icons.videocam_outlined, 'Live Online Classes', 'Learn in real time, ask questions and follow along at your own pace.'),
-    (Icons.work_outline_rounded, 'Real Projects', 'Practice on practical creative briefs, not just isolated tutorials.'),
-    (Icons.forum_outlined, 'Mentorship', 'Get feedback and direction as you build your creative skillset.'),
-    (Icons.trending_up_rounded, 'Freelancing Guidance', 'Understand how creative skills translate into freelance opportunities.'),
-    (Icons.handyman_outlined, 'Practical Learning', 'Focused on doing the work, not just watching it get done.'),
-    (Icons.tune_rounded, 'Industry-Focused Skills', 'Tools and workflows aligned with how creative work is actually made.'),
+    (
+      Icons.school_outlined,
+      'Guided Learning',
+      'Build skills through structured lessons, practice, and creative projects.'
+    ),
+    (
+      Icons.work_outline_rounded,
+      'Real Projects',
+      'Practice on practical creative briefs, not just isolated tutorials.'
+    ),
+    (
+      Icons.forum_outlined,
+      'Mentorship',
+      'Get feedback and direction as you build your creative skillset.'
+    ),
+    (
+      Icons.trending_up_rounded,
+      'Freelancing Guidance',
+      'Understand how creative skills translate into freelance opportunities.'
+    ),
+    (
+      Icons.handyman_outlined,
+      'Practical Learning',
+      'Focused on doing the work, not just watching it get done.'
+    ),
+    (
+      Icons.tune_rounded,
+      'Industry-Focused Skills',
+      'Tools and workflows aligned with how creative work is actually made.'
+    ),
   ];
 
   static const _journey = [
@@ -43,7 +69,47 @@ class HomeScreen extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 28, 20, 32),
       children: [
         const _HeroIntro(),
-        const SizedBox(height: 30),
+        const SizedBox(height: 18),
+        Reveal(
+            child: GlassCard(
+                selected: true,
+                strong: true,
+                padding: const EdgeInsets.all(17),
+                child: Row(children: [
+                  Expanded(
+                      child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                        Text('YOUR NEXT IDEA STARTS HERE',
+                            style: AppText.label),
+                        const SizedBox(height: 6),
+                        Text('Learn by making.', style: AppText.h2),
+                        const SizedBox(height: 4),
+                        Text(
+                            'Try a quick challenge and build your creative confidence.',
+                            style: AppText.caption),
+                        const SizedBox(height: 12),
+                        AppButton(
+                            label: 'Start a Game',
+                            icon: Icons.play_arrow_rounded,
+                            onTap: () => onNavigate(2))
+                      ])),
+                  const SizedBox(width: 10),
+                  Container(
+                      width: 62,
+                      height: 62,
+                      decoration: BoxDecoration(
+                          gradient: AppColors.brandGradient,
+                          borderRadius: BorderRadius.circular(18),
+                          boxShadow: [
+                            BoxShadow(
+                                color: AppColors.violet.fade(.28),
+                                blurRadius: 22)
+                          ]),
+                      child: const Icon(Icons.palette_rounded,
+                          color: Colors.white, size: 29))
+                ]))),
+        const SizedBox(height: 25),
         Reveal(
           delay: const Duration(milliseconds: 900),
           child: Column(
@@ -67,15 +133,26 @@ class HomeScreen extends StatelessWidget {
                 spacing: 12,
                 runSpacing: 12,
                 children: [
-                  AppButton(label: 'Explore Courses', icon: Icons.arrow_forward_rounded, onTap: () => onNavigate(1)),
-                  AppButton(label: 'Talk to Us', primary: false, onTap: () => onNavigate(3)),
+                  AppButton(
+                      label: 'Explore Courses',
+                      icon: Icons.arrow_forward_rounded,
+                      onTap: () => onNavigate(1)),
+                  AppButton(
+                      label: 'Talk to Us',
+                      primary: false,
+                      onTap: () => Navigator.of(context).push(
+                          MaterialPageRoute<void>(
+                              builder: (_) => const SupportScreen()))),
                 ],
               ),
             ],
           ),
         ),
         const SizedBox(height: 44),
-        const Reveal(child: SectionHeader(eyebrow: 'Featured', title: 'Start with a creative discipline')),
+        const Reveal(
+            child: SectionHeader(
+                eyebrow: 'Featured',
+                title: 'Start with a creative discipline')),
         const SizedBox(height: 16),
         SizedBox(
           height: 262,
@@ -100,7 +177,10 @@ class HomeScreen extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 44),
-        const Reveal(child: SectionHeader(eyebrow: 'Why AM Motion Lab', title: 'Built around practical creative growth')),
+        const Reveal(
+            child: SectionHeader(
+                eyebrow: 'Why AM Motion Lab',
+                title: 'Built around practical creative growth')),
         const SizedBox(height: 16),
         Reveal(
           child: GlassCard(
@@ -108,15 +188,20 @@ class HomeScreen extends StatelessWidget {
             child: Column(
               children: [
                 for (var i = 0; i < _why.length; i++) ...[
-                  if (i > 0) const Divider(height: 1, thickness: 1, color: AppColors.glassBorder),
-                  _WhyRow(icon: _why[i].$1, title: _why[i].$2, text: _why[i].$3),
+                  if (i > 0)
+                    const Divider(
+                        height: 1, thickness: 1, color: AppColors.glassBorder),
+                  _WhyRow(
+                      icon: _why[i].$1, title: _why[i].$2, text: _why[i].$3),
                 ],
               ],
             ),
           ),
         ),
         const SizedBox(height: 44),
-        const Reveal(child: SectionHeader(eyebrow: 'Student journey', title: 'One path, six steps')),
+        const Reveal(
+            child: SectionHeader(
+                eyebrow: 'Student journey', title: 'One path, six steps')),
         const SizedBox(height: 18),
         Reveal(
           child: Column(
@@ -143,16 +228,23 @@ class HomeScreen extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text('Tell us what you want to create.', style: AppText.h2),
                 const SizedBox(height: 8),
-                Text('Pick a course, choose your level and begin your journey from curiosity to opportunity.',
+                Text(
+                    'Pick a course, choose your level and begin your journey from curiosity to opportunity.',
                     style: AppText.body),
                 const SizedBox(height: 18),
-                AppButton(label: 'View Courses', expand: true, icon: Icons.arrow_forward_rounded, onTap: () => onNavigate(1)),
+                AppButton(
+                    label: 'View Courses',
+                    expand: true,
+                    icon: Icons.arrow_forward_rounded,
+                    onTap: () => onNavigate(1)),
               ],
             ),
           ),
         ),
         const SizedBox(height: 28),
-        Center(child: Text('Learn \u2022 Create \u2022 Earn', style: AppText.caption)),
+        Center(
+            child: Text('Learn \u2022 Create \u2022 Earn',
+                style: AppText.caption)),
       ],
     );
   }
@@ -166,15 +258,17 @@ class _HeroIntro extends StatefulWidget {
   State<_HeroIntro> createState() => _HeroIntroState();
 }
 
-class _HeroIntroState extends State<_HeroIntro> with SingleTickerProviderStateMixin {
-  late final AnimationController _c =
-      AnimationController(vsync: this, duration: const Duration(milliseconds: 1700))..forward();
+class _HeroIntroState extends State<_HeroIntro>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+      vsync: this, duration: const Duration(milliseconds: 1700))
+    ..forward();
   late final Animation<double> _logo = _interval(0.0, 0.45);
   late final Animation<double> _title = _interval(0.25, 0.7);
   late final Animation<double> _tag = _interval(0.5, 0.9);
 
-  Animation<double> _interval(double a, double b) =>
-      CurvedAnimation(parent: _c, curve: Interval(a, b, curve: Curves.easeOutCubic));
+  Animation<double> _interval(double a, double b) => CurvedAnimation(
+      parent: _c, curve: Interval(a, b, curve: Curves.easeOutCubic));
 
   @override
   void dispose() {
@@ -189,20 +283,7 @@ class _HeroIntroState extends State<_HeroIntro> with SingleTickerProviderStateMi
         _Appear(
           anim: _logo,
           scaleFrom: 0.9,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Container(
-                width: 190,
-                height: 190,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(colors: [AppColors.blue.fade(0.28), AppColors.blue.fade(0)]),
-                ),
-              ),
-              const BrandLogo(size: 84),
-            ],
-          ),
+          child: const AnimatedHeroOrb(child: BrandLogo(size: 84)),
         ),
         const SizedBox(height: 8),
         _Appear(
@@ -231,7 +312,11 @@ class _HeroIntroState extends State<_HeroIntro> with SingleTickerProviderStateMi
 }
 
 class _Appear extends StatelessWidget {
-  const _Appear({required this.anim, required this.child, this.dy = 0, this.scaleFrom = 1});
+  const _Appear(
+      {required this.anim,
+      required this.child,
+      this.dy = 0,
+      this.scaleFrom = 1});
   final Animation<double> anim;
   final Widget child;
   final double dy;
@@ -242,7 +327,8 @@ class _Appear extends StatelessWidget {
     return FadeTransition(
       opacity: anim,
       child: SlideTransition(
-        position: Tween<Offset>(begin: Offset(0, dy), end: Offset.zero).animate(anim),
+        position:
+            Tween<Offset>(begin: Offset(0, dy), end: Offset.zero).animate(anim),
         child: ScaleTransition(
           scale: Tween<double>(begin: scaleFrom, end: 1).animate(anim),
           child: child,
@@ -292,7 +378,11 @@ class _WhyRow extends StatelessWidget {
 }
 
 class _JourneyStep extends StatelessWidget {
-  const _JourneyStep({required this.number, required this.title, required this.text, required this.last});
+  const _JourneyStep(
+      {required this.number,
+      required this.title,
+      required this.text,
+      required this.last});
   final int number;
   final String title;
   final String text;
@@ -318,9 +408,13 @@ class _JourneyStep extends StatelessWidget {
                     border: Border.all(color: AppColors.sky.fade(0.6)),
                   ),
                   child: Text(number.toString().padLeft(2, '0'),
-                      style: AppText.caption.copyWith(color: AppColors.sky, fontWeight: FontWeight.w600)),
+                      style: AppText.caption.copyWith(
+                          color: AppColors.sky, fontWeight: FontWeight.w600)),
                 ),
-                if (!last) Expanded(child: Container(width: 1, color: AppColors.glassBorderStrong)),
+                if (!last)
+                  Expanded(
+                      child: Container(
+                          width: 1, color: AppColors.glassBorderStrong)),
               ],
             ),
           ),

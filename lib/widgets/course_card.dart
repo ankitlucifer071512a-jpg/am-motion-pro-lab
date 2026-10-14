@@ -36,7 +36,8 @@ class CourseCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(13)),
+              borderRadius:
+                  const BorderRadius.vertical(top: Radius.circular(13)),
               child: AspectRatio(
                 aspectRatio: compact ? 16 / 10 : 16 / 9,
                 child: Stack(
@@ -48,11 +49,20 @@ class CourseCard extends StatelessWidget {
                         gradient: LinearGradient(
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
-                          colors: [AppColors.navyDeep.fade(0), AppColors.navyDeep.fade(0.75)],
+                          colors: [
+                            AppColors.navyDeep.fade(0),
+                            AppColors.navyDeep.fade(0.75)
+                          ],
                         ),
                       ),
                     ),
-                    Positioned(left: 12, bottom: 10, child: _Pill(course.durationLabel)),
+                    if (heroTag.endsWith('featured') &&
+                        course.id == 'video-editing')
+                      const Positioned.fill(child: _FeaturedCardSweep()),
+                    Positioned(
+                        left: 12,
+                        bottom: 10,
+                        child: _Pill(course.durationLabel)),
                   ],
                 ),
               ),
@@ -62,24 +72,33 @@ class CourseCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(course.name, style: AppText.h3, maxLines: 1, overflow: TextOverflow.ellipsis),
+                  Text(course.name,
+                      style: AppText.h3,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis),
                   if (!compact) ...[
                     const SizedBox(height: 4),
-                    Text(course.tagline, style: AppText.body, maxLines: 2, overflow: TextOverflow.ellipsis),
+                    Text(course.tagline,
+                        style: AppText.body,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis),
                   ],
                   const SizedBox(height: 10),
                   if (progress != null) ...[
                     AnimatedProgressBar(value: progress!),
                     const SizedBox(height: 6),
-                    Text('${(progress! * 100).round()}% complete', style: AppText.caption),
+                    Text('${(progress! * 100).round()}% complete',
+                        style: AppText.caption),
                   ] else
                     Row(
                       children: [
                         Text('From ', style: AppText.caption),
                         Text(rupees(course.startingPrice),
-                            style: AppText.h3.copyWith(color: AppColors.sky, fontSize: 15)),
+                            style: AppText.h3
+                                .copyWith(color: AppColors.sky, fontSize: 15)),
                         const Spacer(),
-                        const Icon(Icons.arrow_forward_rounded, size: 18, color: AppColors.inkDim),
+                        const Icon(Icons.arrow_forward_rounded,
+                            size: 18, color: AppColors.inkDim),
                       ],
                     ),
                 ],
@@ -90,6 +109,73 @@ class CourseCard extends StatelessWidget {
       ),
     );
   }
+}
+
+class _FeaturedCardSweep extends StatefulWidget {
+  const _FeaturedCardSweep();
+  @override
+  State<_FeaturedCardSweep> createState() => _FeaturedCardSweepState();
+}
+
+class _FeaturedCardSweepState extends State<_FeaturedCardSweep>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 1500),
+  );
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (!(MediaQuery.maybeOf(context)?.disableAnimations ?? false) &&
+        !_controller.isAnimating &&
+        _controller.value == 0) {
+      _controller.forward();
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => IgnorePointer(
+        child: AnimatedBuilder(
+          animation: _controller,
+          builder: (context, _) => CustomPaint(
+            painter: _CardSweepPainter(_controller.value),
+          ),
+        ),
+      );
+}
+
+class _CardSweepPainter extends CustomPainter {
+  const _CardSweepPainter(this.progress);
+  final double progress;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    if (progress <= 0 || progress >= 1) return;
+    final centerX = size.width * (-.35 + progress * 1.7);
+    final path = Path()
+      ..moveTo(centerX - size.width * .18, 0)
+      ..lineTo(centerX + size.width * .04, 0)
+      ..lineTo(centerX - size.width * .16, size.height)
+      ..lineTo(centerX - size.width * .38, size.height)
+      ..close();
+    final paint = Paint()
+      ..shader = const LinearGradient(
+        colors: [Colors.transparent, Color(0x3379C8FF), Colors.transparent],
+      ).createShader(Rect.fromLTWH(
+          centerX - size.width * .4, 0, size.width * .5, size.height));
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant _CardSweepPainter oldDelegate) =>
+      oldDelegate.progress != progress;
 }
 
 class _Pill extends StatelessWidget {
@@ -105,7 +191,8 @@ class _Pill extends StatelessWidget {
         borderRadius: BorderRadius.circular(6),
         border: Border.all(color: AppColors.glassBorder),
       ),
-      child: Text(text, style: AppText.caption.copyWith(color: AppColors.ink, fontSize: 11)),
+      child: Text(text,
+          style: AppText.caption.copyWith(color: AppColors.ink, fontSize: 11)),
     );
   }
 }
