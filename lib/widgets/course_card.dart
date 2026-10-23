@@ -17,6 +17,7 @@ class CourseCard extends StatelessWidget {
     required this.onTap,
     this.compact = false,
     this.progress,
+    this.imageAspectRatio,
   });
 
   final Course course;
@@ -24,6 +25,7 @@ class CourseCard extends StatelessWidget {
   final VoidCallback onTap;
   final bool compact; // compact = horizontal list on Home (no description)
   final double? progress; // null = not enrolled
+  final double? imageAspectRatio;
 
   @override
   Widget build(BuildContext context) {
@@ -39,7 +41,7 @@ class CourseCard extends StatelessWidget {
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(13)),
               child: AspectRatio(
-                aspectRatio: compact ? 16 / 10 : 16 / 9,
+                aspectRatio: imageAspectRatio ?? (compact ? 16 / 10 : 16 / 9),
                 child: Stack(
                   fit: StackFit.expand,
                   children: [

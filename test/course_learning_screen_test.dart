@@ -31,7 +31,7 @@ void main() {
 
     expect(find.text('Sample lesson outlines'), findsOneWidget);
     expect(find.textContaining('Sample outline'), findsWidgets);
-    await tester.tap(find.text('Understanding the basics'));
+    await tester.tap(find.text('Organise and review source footage'));
     await tester.pumpAndSettle();
     expect(find.text('Lesson preview'), findsOneWidget);
     expect(find.textContaining('Recording unavailable'), findsOneWidget);

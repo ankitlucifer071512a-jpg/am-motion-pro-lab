@@ -4,7 +4,8 @@ publish_to: 'none'
 version: 1.0.0+1
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ">=3.10.0 <4.0.0"
+  flutter: ">=3.38.1"
 
 dependencies:
   flutter:
@@ -12,9 +13,19 @@ dependencies:
   google_fonts: ^6.2.1
   file_picker: ^13.1.0
   image_picker: ^1.1.2
+  flutter_contacts: ^2.6.0
+  http: ^1.6.0
   model_viewer_plus: ^1.10.0
   shared_preferences: ^2.3.2
   url_launcher: ^6.3.1
+  supabase_flutter: ^2.18.3
+  video_player: ^2.14.1
+  video_thumbnail:
+    path: third_party/video_thumbnail
+  video_compress: ^3.1.4
+  visibility_detector: ^0.4.0+2
+  emoji_picker_flutter: ">=4.4.0 <4.5.0"
+  share_plus: ^13.3.1
 
 dev_dependencies:
   flutter_test:
@@ -26,3 +37,19 @@ flutter:
   assets:
     - assets/brand/
     - assets/images/courses/
+    - assets/images/banners/
+    - assets/images/projects/
+    - assets/images/challenges/
+    - assets/images/placeholders/
+    - assets/models/gallery/
+    - assets/models/characters/
+    - assets/models/products/
+    - assets/models/environments/
+    - assets/models/animations/
+    - assets/models/
+    - assets/textures/
+    - assets/audio/
+    - assets/data/courses/
+    - assets/data/projects/
+    - assets/data/challenges/
+    - assets/data/models/

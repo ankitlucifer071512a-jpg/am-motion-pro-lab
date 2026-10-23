@@ -31,7 +31,13 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+/android/build/
+/node_modules/
+/third_party/video_thumbnail/android/.gradle/
+/third_party/video_thumbnail/android/build/
 /coverage/
+supabase-credentials.json
+/supabase/.env.local
 
 # Symbolication related
 app.*.symbols

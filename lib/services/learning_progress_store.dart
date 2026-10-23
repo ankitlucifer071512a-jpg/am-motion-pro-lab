@@ -19,6 +19,16 @@ class LearningProgressStore {
   static const _motionDashCompletedRoundsKey =
       'motion_dash_completed_rounds_v1';
   static const _courseLessonsKey = 'course_lessons_completed_demo_v1';
+  static const _portfolioRatingKey = 'portfolio_practice_rating_v1';
+
+  Future<double?> get portfolioPracticeRating async =>
+      (await SharedPreferences.getInstance()).getDouble(_portfolioRatingKey);
+
+  Future<void> recordPortfolioPracticeRating(double rating) async =>
+      (await SharedPreferences.getInstance()).setDouble(
+        _portfolioRatingKey,
+        rating.clamp(1, 5),
+      );
 
   Future<Set<String>> get completedCourseLessons async =>
       (await SharedPreferences.getInstance())

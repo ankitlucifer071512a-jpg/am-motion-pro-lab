@@ -132,6 +132,16 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                   Reveal(
                       child: Text(c.description,
                           style: AppText.body.copyWith(fontSize: 15))),
+                  const SizedBox(height: 20),
+                  _CourseInfoSection(
+                    title: 'WHO THIS COURSE IS FOR',
+                    items: [c.suitedFor],
+                  ),
+                  const SizedBox(height: 12),
+                  _CourseInfoSection(
+                    title: 'BEFORE YOU START',
+                    items: c.prerequisites,
+                  ),
                   const SizedBox(height: 22),
                   Reveal(
                     delay: const Duration(milliseconds: 60),
@@ -172,6 +182,23 @@ class _CourseDetailScreenState extends State<CourseDetailScreen> {
                             child:
                                 _ModuleTile(index: i + 1, module: c.modules[i]),
                           ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 14),
+                  _CourseInfoSection(
+                    title: 'PRACTICE PROJECTS',
+                    items: c.practiceProjects,
+                  ),
+                  const SizedBox(height: 12),
+                  GlassCard(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('FINAL PROJECT', style: AppText.label),
+                        const SizedBox(height: 7),
+                        Text(c.finalProject, style: AppText.body),
                       ],
                     ),
                   ),
@@ -545,4 +572,38 @@ class _Bullets extends StatelessWidget {
       ],
     );
   }
+}
+
+class _CourseInfoSection extends StatelessWidget {
+  const _CourseInfoSection({required this.title, required this.items});
+
+  final String title;
+  final List<String> items;
+
+  @override
+  Widget build(BuildContext context) => GlassCard(
+        padding: const EdgeInsets.all(15),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(title, style: AppText.label),
+            const SizedBox(height: 8),
+            for (final item in items)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 6),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Padding(
+                      padding: EdgeInsets.only(top: 5),
+                      child: Icon(Icons.circle, size: 6, color: AppColors.sky),
+                    ),
+                    const SizedBox(width: 9),
+                    Expanded(child: Text(item, style: AppText.body)),
+                  ],
+                ),
+              ),
+          ],
+        ),
+      );
 }

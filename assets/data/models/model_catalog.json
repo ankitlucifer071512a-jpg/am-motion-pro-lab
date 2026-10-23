@@ -1,0 +1,60 @@
+{
+  "version": 1,
+  "models": [
+    {
+      "id": "anime-hero-character",
+      "title": "Anime Hero Character",
+      "category": "Characters",
+      "description": "A locally bundled, rigged anime character used in the Home hero. The GLB has no embedded animation clip, so the hero uses a slow camera orbit instead of invented character gestures.",
+      "format": "GLB",
+      "assetPath": "assets/models/gallery/3d_anime_character_girl_for_blender.glb",
+      "previewPath": null,
+      "animationInfo": "No embedded animation clip. Home uses a gentle 7 degree-per-second camera orbit.",
+      "isSlot": false
+    },
+    {
+      "id": "character-slot",
+      "title": "Character model slot",
+      "category": "Characters",
+      "description": "A place for a character exported from your 3D workflow. Add a packed GLB and an optional preview image when it is ready.",
+      "format": "GLB",
+      "assetPath": null,
+      "previewPath": null,
+      "animationInfo": "No animation registered yet.",
+      "isSlot": true
+    },
+    {
+      "id": "product-slot",
+      "title": "Product model slot",
+      "category": "Products",
+      "description": "A place for a product or prop model with materials packed into a GLB.",
+      "format": "GLB",
+      "assetPath": null,
+      "previewPath": null,
+      "animationInfo": "No animation registered yet.",
+      "isSlot": true
+    },
+    {
+      "id": "environment-slot",
+      "title": "Environment model slot",
+      "category": "Environments",
+      "description": "A place for a compact scene or environment prepared for real-time inspection.",
+      "format": "GLB",
+      "assetPath": null,
+      "previewPath": null,
+      "animationInfo": "No animation registered yet.",
+      "isSlot": true
+    },
+    {
+      "id": "animated-model-slot",
+      "title": "Animated model slot",
+      "category": "Animation",
+      "description": "A place for a GLB that contains one or more animation clips.",
+      "format": "GLB",
+      "assetPath": null,
+      "previewPath": null,
+      "animationInfo": "Add clip names and playback notes after an animated model is supplied.",
+      "isSlot": true
+    }
+  ]
+}

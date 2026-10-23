@@ -1,0 +1,28 @@
+[functions.validate-idea-media]
+verify_jwt = true
+
+[functions.expire-idea-stories]
+verify_jwt = false
+
+[functions.match-idea-contacts]
+verify_jwt = true
+
+[functions.creative-ai-chat]
+verify_jwt = true
+
+[functions.idea-music-search]
+verify_jwt = true
+
+# Local Supabase only. Hosted projects need the same sender name and recovery
+# template configured in Authentication settings and Email Templates.
+
+[auth.email.template.recovery]
+subject = "AM MOTION LAB password reset code"
+content_path = "./supabase/templates/recovery.html"
+
+# Local Auth limits; configure the same or stricter values in the hosted
+# project's Authentication > Rate Limits page. The OTP endpoint also enforces
+# its server-side per-user cooldown (60 seconds by default).
+[auth.rate_limit]
+token_verifications = 30
+sign_in_sign_ups = 30

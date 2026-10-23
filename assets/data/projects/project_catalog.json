@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "projects": [
+    {
+      "id": "kinetic-type-promo",
+      "title": "Kinetic Type Promo",
+      "category": "Motion Graphics",
+      "description": "A punchy title sequence built around expressive type and smooth easing.",
+      "brief": "Create a short launch promo for a fictional creative festival. Make the event name readable in the first two seconds, then use shape, rhythm, and transitions to build energy.",
+      "tools": ["After Effects", "Illustrator"],
+      "outcomes": ["Animate type with easing", "Build a reusable transition", "Keep a clear visual hierarchy"],
+      "tags": ["Typography", "Easing", "Transitions"],
+      "imagePath": null
+    },
+    {
+      "id": "studio-product-film",
+      "title": "Studio Product Film",
+      "category": "3D Animation",
+      "description": "A polished product reveal focused on materials, lighting, and camera movement.",
+      "brief": "Stage a fictional desk accessory as a premium product. Use a restrained material palette, a soft key light, rim separation, and one deliberate camera move.",
+      "tools": ["Blender", "DaVinci Resolve"],
+      "outcomes": ["Tune roughness and reflections", "Shape a three point light setup", "Render a clean product shot"],
+      "tags": ["Materials", "Lighting", "Rendering"],
+      "imagePath": null
+    },
+    {
+      "id": "brand-social-kit",
+      "title": "Brand Social Kit",
+      "category": "Graphic Design",
+      "description": "A compact launch identity with a considered palette and flexible layouts.",
+      "brief": "Design a small social launch kit for a fictional plant shop. Establish type and color rules, then carry them across a square post and a story layout.",
+      "tools": ["Figma", "Illustrator"],
+      "outcomes": ["Choose a coherent palette", "Set typographic hierarchy", "Adapt a layout to a second format"],
+      "tags": ["Branding", "Color", "Composition"],
+      "imagePath": null
+    },
+    {
+      "id": "short-film-edit",
+      "title": "Short Film Edit",
+      "category": "Video Editing",
+      "description": "Shape a short story using footage selection, sound, pacing, and color.",
+      "brief": "Cut a 20 second travel moment from a supplied set of clips. Start with a clear beat, refine the timeline, layer natural sound, and finish with a consistent grade.",
+      "tools": ["DaVinci Resolve", "Audition"],
+      "outcomes": ["Build a readable edit timeline", "Balance dialogue and ambience", "Match shots with color"],
+      "tags": ["Footage", "Audio", "Color grade"],
+      "imagePath": null
+    }
+  ]
+}

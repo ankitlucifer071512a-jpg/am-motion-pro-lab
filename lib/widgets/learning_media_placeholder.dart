@@ -59,7 +59,30 @@ class LearningMediaPlaceholder extends StatelessWidget {
                   ? _fallback()
                   : Image.asset(assetPath!,
                       fit: BoxFit.cover,
+                      frameBuilder:
+                          (context, child, frame, wasSynchronouslyLoaded) =>
+                              frame != null || wasSynchronouslyLoaded
+                                  ? child
+                                  : _loading(),
                       errorBuilder: (_, __, ___) => _fallback()))));
+
+  Widget _loading() => const DecoratedBox(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Color(0xFF15233D), Color(0xFF0B1222)],
+          ),
+        ),
+        child: Center(
+          child: SizedBox(
+            width: 24,
+            height: 24,
+            child: CircularProgressIndicator(
+              strokeWidth: 2,
+              semanticsLabel: 'Loading media preview',
+            ),
+          ),
+        ),
+      );
 
   Widget _fallback() => Center(
           child: Column(mainAxisSize: MainAxisSize.min, children: [

@@ -3,13 +3,15 @@ import 'package:flutter/material.dart';
 import '../screens/courses/courses_screen.dart';
 import '../screens/courses/purchase_courses_screen.dart';
 import '../screens/games/game_lab_screen.dart';
+import '../screens/idea_lab/idea_lab_screen.dart';
 import '../screens/home/home_screen.dart';
 import '../screens/notifications/notifications_screen.dart';
 import '../screens/profile/profile_screen.dart';
 import '../widgets/ambient_background.dart';
 import '../widgets/bottom_nav.dart';
+import '../widgets/creative_ai_fab.dart';
 
-/// Main app frame: shared background + six-tab navigation and back history.
+/// Main app frame: shared background + tab navigation and back history.
 class AppShell extends StatefulWidget {
   const AppShell({super.key});
 
@@ -42,32 +44,38 @@ class _AppShellState extends State<AppShell> {
   Widget _page(int i) {
     switch (i) {
       case 0:
-        return HomeScreen(onNavigate: _go);
+        return HomeScreen(onNavigate: _go, isActive: _index == 0);
       case 1:
         return const CoursesScreen();
       case 2:
         return const GameLabScreen();
       case 3:
-        return const PurchaseCoursesScreen();
+        return const IdeaLabScreen();
       case 4:
+        return const PurchaseCoursesScreen();
+      case 5:
         return NotificationsScreen(
           onBack: _back,
           onOpenCourses: _openCourseCatalog,
         );
-      default:
+      case 6:
         return const ProfileScreen();
+      default:
+        return const SizedBox.shrink();
     }
   }
 
   void _openCourseCatalog() {
-    Navigator.of(context).push(MaterialPageRoute<void>(
-      builder: (_) => Scaffold(
-        appBar: AppBar(title: const Text('Courses')),
-        body: const AmbientBackground(
-          child: SafeArea(child: CoursesScreen()),
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (_) => Scaffold(
+          appBar: AppBar(title: const Text('Courses')),
+          body: const AmbientBackground(
+            child: SafeArea(child: CoursesScreen()),
+          ),
         ),
       ),
-    ));
+    );
   }
 
   @override
@@ -79,15 +87,24 @@ class _AppShellState extends State<AppShell> {
       },
       child: Scaffold(
         body: AmbientBackground(
-          child: SafeArea(
-            bottom: false,
-            child: IndexedStack(
-              index: _index,
-              children: [
-                for (var i = 0; i < AmBottomNav.items.length; i++)
-                  _visited.contains(i) ? _page(i) : const SizedBox.shrink(),
-              ],
-            ),
+          child: Stack(
+            children: [
+              Positioned.fill(
+                child: SafeArea(
+                  bottom: false,
+                  child: IndexedStack(
+                    index: _index,
+                    children: [
+                      for (var i = 0; i < AmBottomNav.items.length; i++)
+                        _visited.contains(i)
+                            ? _page(i)
+                            : const SizedBox.shrink(),
+                    ],
+                  ),
+                ),
+              ),
+              const Positioned(right: 18, bottom: 14, child: CreativeAiFab()),
+            ],
           ),
         ),
         bottomNavigationBar: AmBottomNav(index: _index, onChanged: _go),

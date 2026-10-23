@@ -16,7 +16,8 @@ import 'creative_project_workspace_screen.dart';
 import 'neon_rush_screen.dart';
 import 'motion_dash_screen.dart';
 import 'studio_coach_screen.dart';
-import 'three_d_studio_screen.dart';
+import 'model_gallery_screen.dart';
+import 'projects_showcase_screen.dart';
 import 'client_work_lab_screen.dart';
 
 class _PracticeActivity {
@@ -130,6 +131,8 @@ class GameLabScreen extends StatelessWidget {
             'Quick creative challenges with instant feedback. Pick an activity and try a new idea.',
             style: AppText.body),
         const SizedBox(height: 18),
+        Text('Explore Game Lab activities', style: AppText.h2),
+        const SizedBox(height: 12),
         _ActionCard(
             icon: Icons.bolt_rounded,
             title: 'AM Arcade · Neon Rush',
@@ -176,6 +179,14 @@ class GameLabScreen extends StatelessWidget {
                     builder: (_) => const CreativeProjectWorkspaceScreen()))),
         const SizedBox(height: 10),
         _ActionCard(
+            icon: Icons.collections_bookmark_outlined,
+            title: 'Projects & Portfolio',
+            subtitle: 'Browse sample briefs, tools and learning outcomes',
+            onTap: () => Navigator.push(
+                context,
+                AppRoutes.fadeScale(const ProjectsShowcaseScreen()))),
+        const SizedBox(height: 10),
+        _ActionCard(
             icon: Icons.palette_outlined,
             title: 'Color & design games',
             subtitle: 'Palettes, typography, layout, 2D, 3D and motion',
@@ -195,12 +206,12 @@ class GameLabScreen extends StatelessWidget {
         const SizedBox(height: 10),
         _ActionCard(
             icon: Icons.view_in_ar_outlined,
-            title: '3D Model Studio',
-            subtitle: 'Import and inspect a GLB model in 3D',
+            title: '3D Model Gallery',
+            subtitle: 'Browse model slots, then preview a registered GLB in 3D',
             onTap: () => Navigator.push(
                 context,
                 MaterialPageRoute<void>(
-                    builder: (_) => const ThreeDStudioScreen()))),
+                    builder: (_) => const ModelGalleryScreen()))),
         const SizedBox(height: 10),
         _ActionCard(
             icon: Icons.groups_2_outlined,
@@ -253,27 +264,39 @@ class _ActionCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => InkWell(
       onTap: onTap,
-      borderRadius: BorderRadius.circular(16),
+      borderRadius: BorderRadius.circular(14),
       child: GlassCard(
-          padding: const EdgeInsets.all(15),
-          child: Row(children: [
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
             Container(
-                width: 42,
-                height: 42,
+                width: 36,
+                height: 36,
                 decoration: BoxDecoration(
                     color: AppColors.blue.fade(.16),
                     borderRadius: BorderRadius.circular(12)),
                 child: Icon(icon, color: AppColors.sky)),
-            const SizedBox(width: 13),
+            const SizedBox(width: 11),
             Expanded(
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                  Text(title, style: AppText.h3.copyWith(fontSize: 15)),
-                  const SizedBox(height: 3),
-                  Text(subtitle, style: AppText.caption)
+                  Text(
+                    title,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppText.h3.copyWith(fontSize: 14),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    subtitle,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppText.caption,
+                  ),
                 ])),
-            const Icon(Icons.chevron_right_rounded, color: AppColors.inkFaint)
+            const SizedBox(width: 8),
+            const Icon(Icons.chevron_right_rounded,
+                color: AppColors.inkFaint, size: 20)
           ])));
 }
 
@@ -426,6 +449,12 @@ class _PortfolioReviewScreenState extends State<PortfolioReviewScreen> {
   String? _fileName;
   final List<double> _ratings = [3, 3, 3];
   bool _rated = false;
+
+  Future<void> _showRating() async {
+    final score = _ratings.reduce((a, b) => a + b) / _ratings.length;
+    setState(() => _rated = true);
+    await LearningProgressStore.instance.recordPortfolioPracticeRating(score);
+  }
   Future<void> _pick() async {
     final file = await _picker.pickImage(
         source: ImageSource.gallery, maxWidth: 1800, imageQuality: 88);
@@ -488,7 +517,7 @@ class _PortfolioReviewScreenState extends State<PortfolioReviewScreen> {
           for (var i = 0; i < 3; i++) _ratingSlider(i),
           FilledButton.icon(
             onPressed:
-                _bytes == null ? null : () => setState(() => _rated = true),
+                _bytes == null ? null : _showRating,
             icon: const Icon(Icons.star_outline_rounded),
             label: const Text('Show practice rating'),
           ),

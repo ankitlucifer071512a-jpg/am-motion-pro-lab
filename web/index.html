@@ -32,6 +32,38 @@
   <title>my_first_app</title>
   <link rel="manifest" href="manifest.json">
   <script type="module" src="./assets/packages/model_viewer_plus/assets/model-viewer.min.js" defer></script>
+  <script>
+    (() => {
+      const attachModelStatus = (viewer) => {
+        if (viewer.dataset.amMotionStatus === 'ready') return;
+        viewer.dataset.amMotionStatus = 'ready';
+        const host = viewer.parentElement;
+        if (!host) return;
+        host.style.position = 'relative';
+        const status = document.createElement('div');
+        status.setAttribute('role', 'status');
+        status.setAttribute('aria-live', 'polite');
+        status.style.cssText = 'position:absolute;z-index:10;left:12px;right:12px;bottom:12px;padding:9px 12px;border-radius:10px;background:rgba(9,14,26,.9);color:#E7ECF5;border:1px solid rgba(148,173,214,.36);font:13px sans-serif;text-align:center;pointer-events:none;';
+        status.textContent = 'Preparing 3D preview…';
+        host.appendChild(status);
+        viewer.addEventListener('progress', (event) => {
+          const amount = Math.round((event.detail?.totalProgress || 0) * 100);
+          status.textContent = `Loading model ${amount}%`;
+          status.style.display = '';
+        });
+        viewer.addEventListener('load', () => status.remove());
+        viewer.addEventListener('error', () => {
+          status.textContent = 'Could not load this model. Check the GLB and pack its textures into the file.';
+          status.style.color = '#FFD7D7';
+          status.style.borderColor = '#B65F70';
+          status.style.display = '';
+        });
+      };
+      const scan = () => document.querySelectorAll('model-viewer').forEach(attachModelStatus);
+      new MutationObserver(scan).observe(document.documentElement, { childList: true, subtree: true });
+      scan();
+    })();
+  </script>
 </head>
 <body>
   <!--

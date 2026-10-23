@@ -32,11 +32,15 @@ class Course {
     required this.name,
     required this.tagline,
     required this.description,
+    required this.suitedFor,
+    required this.prerequisites,
     required this.imageAsset,
     required this.icon,
     required this.skills,
     required this.tools,
     required this.modules,
+    required this.practiceProjects,
+    required this.finalProject,
     required this.plans,
   });
 
@@ -44,14 +48,19 @@ class Course {
   final String name;
   final String tagline;
   final String description;
+  final String suitedFor;
+  final List<String> prerequisites;
   final String imageAsset;
   final IconData icon;
   final List<String> skills;
   final List<String> tools;
   final List<CourseModule> modules;
+  final List<String> practiceProjects;
+  final String finalProject;
   final List<Plan> plans;
 
-  int get startingPrice => plans.map((p) => p.price).reduce((a, b) => a < b ? a : b);
+  int get startingPrice =>
+      plans.map((p) => p.price).reduce((a, b) => a < b ? a : b);
 
   String get durationLabel {
     final re = RegExp(r'(\d+)\D+(\d+)');

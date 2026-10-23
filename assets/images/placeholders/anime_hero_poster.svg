@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 720 900">
+  <defs>
+    <radialGradient id="halo" cx="50%" cy="38%" r="68%">
+      <stop offset="0" stop-color="#3D85FF" stop-opacity=".38"/>
+      <stop offset=".52" stop-color="#6D28D9" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#090E1A" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="hair" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#9BCBFF"/>
+      <stop offset=".45" stop-color="#6656C9"/>
+      <stop offset="1" stop-color="#172A55"/>
+    </linearGradient>
+    <linearGradient id="coat" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#253D72"/>
+      <stop offset="1" stop-color="#10172C"/>
+    </linearGradient>
+    <filter id="soft" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="22"/>
+    </filter>
+  </defs>
+  <rect width="720" height="900" fill="#0A1224"/>
+  <ellipse cx="360" cy="430" rx="290" ry="370" fill="url(#halo)"/>
+  <ellipse cx="360" cy="780" rx="205" ry="30" fill="#407CFF" opacity=".22" filter="url(#soft)"/>
+  <path d="M167 865c9-148 69-232 158-247l35-10 35 10c89 15 149 99 158 247H167Z" fill="url(#coat)" stroke="#91C9FF" stroke-opacity=".32" stroke-width="3"/>
+  <path d="m292 620 68 101 68-101-27-27h-82l-27 27Z" fill="#DDE9FF" opacity=".92"/>
+  <path d="M253 351c-43-158 24-274 127-278 119-5 185 101 140 285l-39 73-222-4-6-76Z" fill="url(#hair)" stroke="#B3DCFF" stroke-opacity=".64" stroke-width="5"/>
+  <path d="M267 252c60-12 106-58 132-106 31 42 72 70 133 83l-3 100c-4 85-76 150-151 150-74 0-142-68-145-150l-2-77 36 0Z" fill="#F0C7C4" stroke="#FFE4E2" stroke-opacity=".5" stroke-width="4"/>
+  <path d="M233 279c39-43 63-101 83-165 46 30 104 45 183 48-31-78-91-117-160-111-94 8-143 101-106 228Z" fill="url(#hair)"/>
+  <path d="M253 277c27 21 47 47 59 79l-35 17-52-38 28-58Zm216 0c-27 21-47 47-59 79l35 17 52-38-28-58Z" fill="#E9B8BB" stroke="#FFE4E2" stroke-opacity=".4" stroke-width="3"/>
+  <path d="M293 347c13-14 31-18 48-9m41 0c17-9 35-5 48 9" fill="none" stroke="#34456E" stroke-width="8" stroke-linecap="round"/>
+  <ellipse cx="319" cy="372" rx="13" ry="20" fill="#3C92D6"/>
+  <ellipse cx="399" cy="372" rx="13" ry="20" fill="#3C92D6"/>
+  <circle cx="323" cy="366" r="5" fill="#E7F6FF"/>
+  <circle cx="403" cy="366" r="5" fill="#E7F6FF"/>
+  <path d="M342 430c12 8 24 8 36 0" fill="none" stroke="#B76175" stroke-width="5" stroke-linecap="round"/>
+  <path d="M288 596c30 18 54 27 72 27s42-9 72-27l44 28-76 106h-80l-76-106 44-28Z" fill="#E8F2FF" opacity=".94"/>
+  <path d="m351 627 9 38 9-38-9-9-9 9Z" fill="#62CFFF"/>
+  <text x="360" y="848" fill="#C3D7FF" fill-opacity=".82" font-family="Arial,sans-serif" font-size="20" letter-spacing="5" text-anchor="middle">3D CHARACTER PREVIEW</text>
+</svg>

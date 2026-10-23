@@ -3,14 +3,22 @@ import 'dart:convert';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:model_viewer_plus/model_viewer_plus.dart';
+import 'package:flutter/services.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_theme.dart';
 import '../../widgets/glass_card.dart';
+import '../../widgets/interactive_model_viewer.dart';
 
 class ThreeDStudioScreen extends StatefulWidget {
-  const ThreeDStudioScreen({super.key});
+  const ThreeDStudioScreen({
+    super.key,
+    this.initialAssetPath,
+    this.initialModelName,
+  });
+
+  final String? initialAssetPath;
+  final String? initialModelName;
 
   @override
   State<ThreeDStudioScreen> createState() => _ThreeDStudioScreenState();
@@ -22,6 +30,59 @@ class _ThreeDStudioScreenState extends State<ThreeDStudioScreen> {
   String? _error;
   int? _modelBytes;
   bool _loading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    final path = widget.initialAssetPath;
+    if (path != null) {
+      _loading = true;
+      Future<void>.microtask(() => _loadBundledModel(path));
+    }
+  }
+
+  Future<void> _loadBundledModel(String path) async {
+    try {
+      final data = await rootBundle.load(path);
+      final length = data.lengthInBytes;
+      if (length == 0) {
+        throw const FormatException('This bundled model is empty.');
+      }
+      if (length > 20 * 1024 * 1024) {
+        throw const FormatException('This model is larger than 20 MB.');
+      }
+      final bytes = data.buffer.asUint8List(data.offsetInBytes, length);
+      final isGlb = bytes.length >= 4 &&
+          bytes[0] == 0x67 &&
+          bytes[1] == 0x6c &&
+          bytes[2] == 0x54 &&
+          bytes[3] == 0x46;
+      if (!isGlb) {
+        throw const FormatException('This asset is not a valid GLB model.');
+      }
+      if (!mounted) return;
+      setState(() {
+        _source = 'data:model/gltf-binary;base64,${base64Encode(bytes)}';
+        _modelName = widget.initialModelName ?? path.split('/').last;
+        _modelBytes = length;
+        _loading = false;
+      });
+    } on FormatException catch (error) {
+      if (mounted) {
+        setState(() {
+          _error = error.message;
+          _loading = false;
+        });
+      }
+    } catch (_) {
+      if (mounted) {
+        setState(() {
+          _error = 'Could not load the registered model asset.';
+          _loading = false;
+        });
+      }
+    }
+  }
 
   Future<void> _importModel() async {
     setState(() {
@@ -118,13 +179,10 @@ class _ThreeDStudioScreenState extends State<ThreeDStudioScreen> {
                       ? _emptyStage()
                       : ClipRRect(
                           borderRadius: BorderRadius.circular(14),
-                          child: ModelViewer(
+                          child: InteractiveModelViewer(
                             key: ValueKey(_source),
                             src: _source!,
                             alt: _modelName ?? 'Imported 3D model',
-                            ar: false,
-                            cameraControls: true,
-                            autoRotate: true,
                             backgroundColor: AppColors.navyDeep,
                           ),
                         ),

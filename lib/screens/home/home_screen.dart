@@ -1,24 +1,39 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_theme.dart';
+import '../../app/route_observer.dart';
 import '../../services/course_repository.dart';
+import '../../services/learning_progress_store.dart';
+import '../../models/course.dart';
+import '../../models/showcase_project.dart';
+import '../../services/showcase_project_repository.dart';
 import '../../widgets/app_button.dart';
-import '../../widgets/brand_logo.dart';
 import '../../widgets/course_card.dart';
 import '../../widgets/glass_card.dart';
+import '../../widgets/animated_progress_bar.dart';
 import '../../widgets/light_sweep_text.dart';
-import '../../widgets/premium_lighting.dart';
+import '../../widgets/home_character_hero.dart';
+import '../../widgets/home_idea_gallery.dart';
 import '../../widgets/reveal.dart';
 import '../../widgets/section_header.dart';
 import '../courses/course_detail_screen.dart';
+import '../courses/course_learning_screen.dart';
 import '../profile/support_screen.dart';
+import '../games/projects_showcase_screen.dart';
 
 class HomeScreen extends StatelessWidget {
-  const HomeScreen({super.key, required this.onNavigate});
+  const HomeScreen({
+    super.key,
+    required this.onNavigate,
+    this.isActive = true,
+  });
 
   /// Switches the bottom-nav tab (1 = Courses, 2 = Game Lab).
   final ValueChanged<int> onNavigate;
+  final bool isActive;
 
   static const _why = [
     (
@@ -68,9 +83,21 @@ class HomeScreen extends StatelessWidget {
     return ListView(
       padding: const EdgeInsets.fromLTRB(20, 28, 20, 32),
       children: [
-        const _HeroIntro(),
+        HomeCharacterHero(
+          course: courses.firstWhere((course) => course.id == '3d-animation'),
+          onExplore: () {
+            final course =
+                courses.firstWhere((course) => course.id == '3d-animation');
+            CourseDetailScreen.open(
+              context,
+              course,
+              'home-hero-${course.id}',
+            );
+          },
+        ),
         const SizedBox(height: 18),
         Reveal(
+            delay: const Duration(milliseconds: 1900),
             child: GlassCard(
                 selected: true,
                 strong: true,
@@ -109,6 +136,7 @@ class HomeScreen extends StatelessWidget {
                       child: const Icon(Icons.palette_rounded,
                           color: Colors.white, size: 29))
                 ]))),
+        const _ContinueLearningCard(),
         const SizedBox(height: 25),
         Reveal(
           delay: const Duration(milliseconds: 900),
@@ -154,28 +182,29 @@ class HomeScreen extends StatelessWidget {
                 eyebrow: 'Featured',
                 title: 'Start with a creative discipline')),
         const SizedBox(height: 16),
-        SizedBox(
-          height: 262,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            clipBehavior: Clip.none,
-            itemCount: courses.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 14),
-            itemBuilder: (context, i) {
-              final c = courses[i];
-              final tag = 'course-img-${c.id}-featured';
-              return SizedBox(
-                width: 260,
-                child: CourseCard(
-                  course: c,
-                  heroTag: tag,
-                  compact: true,
-                  onTap: () => CourseDetailScreen.open(context, c, tag),
+        _FeaturedCoursesCarousel(courses: courses, isActive: isActive),
+        const SizedBox(height: 38),
+        Row(
+          children: [
+            const Expanded(
+              child: SectionHeader(
+                eyebrow: 'Creative portfolio',
+                title: 'Projects to make',
+              ),
+            ),
+            TextButton.icon(
+              onPressed: () => Navigator.of(context).push(
+                MaterialPageRoute<void>(
+                  builder: (_) => const ProjectsShowcaseScreen(),
                 ),
-              );
-            },
-          ),
+              ),
+              icon: const Icon(Icons.arrow_forward_rounded, size: 17),
+              label: const Text('View all'),
+            ),
+          ],
         ),
+        const SizedBox(height: 12),
+        const _HomeProjectHighlights(),
         const SizedBox(height: 44),
         const Reveal(
             child: SectionHeader(
@@ -245,97 +274,384 @@ class HomeScreen extends StatelessWidget {
         Center(
             child: Text('Learn \u2022 Create \u2022 Earn',
                 style: AppText.caption)),
+        const SizedBox(height: 40),
+        const Reveal(
+          child: SectionHeader(
+            eyebrow: 'Community gallery',
+            title: 'Explore what you can create',
+          ),
+        ),
+        const SizedBox(height: 16),
+        HomeIdeaGallery(isActive: isActive),
       ],
     );
   }
 }
 
-/// Logo -> AM MOTION LAB (with light sweep) -> LEARN * CREATE * EARN. Plays once.
-class _HeroIntro extends StatefulWidget {
-  const _HeroIntro();
+class _FeaturedCoursesCarousel extends StatefulWidget {
+  const _FeaturedCoursesCarousel({
+    required this.courses,
+    required this.isActive,
+  });
+  final List<Course> courses;
+  final bool isActive;
 
   @override
-  State<_HeroIntro> createState() => _HeroIntroState();
+  State<_FeaturedCoursesCarousel> createState() =>
+      _FeaturedCoursesCarouselState();
 }
 
-class _HeroIntroState extends State<_HeroIntro>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _c = AnimationController(
-      vsync: this, duration: const Duration(milliseconds: 1700))
-    ..forward();
-  late final Animation<double> _logo = _interval(0.0, 0.45);
-  late final Animation<double> _title = _interval(0.25, 0.7);
-  late final Animation<double> _tag = _interval(0.5, 0.9);
+class _FeaturedCoursesCarouselState extends State<_FeaturedCoursesCarousel>
+    with WidgetsBindingObserver {
+  static const _initialPage = 10000;
+  static const _transitionDuration = Duration(milliseconds: 1500);
+  static const _interactionPause = Duration(seconds: 5);
 
-  Animation<double> _interval(double a, double b) => CurvedAnimation(
-      parent: _c, curve: Interval(a, b, curve: Curves.easeOutCubic));
+  late PageController _controller;
+  double _viewportFraction = .82;
+  int _page = 0;
+  bool _appIsForeground = true;
+  Timer? _advanceTimer;
+  Timer? _resumeTimer;
+
+  bool get _canAutoplay =>
+      widget.isActive && _appIsForeground && widget.courses.length > 1;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = PageController(
+      initialPage: _initialPage,
+      viewportFraction: _viewportFraction,
+    );
+    WidgetsBinding.instance.addObserver(this);
+    _syncAutoplay();
+  }
+
+  void _setViewportFraction(double fraction) {
+    if ((_viewportFraction - fraction).abs() < .001) return;
+    final previous = _controller;
+    final page = previous.hasClients
+        ? previous.page?.round() ?? _page
+        : _page == 0
+            ? _initialPage
+            : _page;
+    _viewportFraction = fraction;
+    _controller = PageController(
+      initialPage: page,
+      viewportFraction: fraction,
+    );
+    WidgetsBinding.instance.addPostFrameCallback((_) => previous.dispose());
+  }
+
+  @override
+  void didUpdateWidget(covariant _FeaturedCoursesCarousel oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.isActive != widget.isActive ||
+        oldWidget.courses.length != widget.courses.length) {
+      _syncAutoplay();
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    _appIsForeground = state == AppLifecycleState.resumed;
+    _syncAutoplay();
+  }
+
+  void _syncAutoplay() {
+    if (!_canAutoplay) {
+      _advanceTimer?.cancel();
+      _advanceTimer = null;
+      _resumeTimer?.cancel();
+      _resumeTimer = null;
+      return;
+    }
+    _scheduleAdvance();
+  }
+
+  void _scheduleAdvance() {
+    if (!mounted ||
+        !_canAutoplay ||
+        _advanceTimer != null ||
+        _resumeTimer != null) {
+      return;
+    }
+    _advanceTimer = Timer(const Duration(seconds: 6), () {
+      _advanceTimer = null;
+      if (!_canAutoplay || !_controller.hasClients) return;
+      final current = _controller.page?.round() ?? _initialPage;
+      _controller
+          .animateToPage(
+            current + 1,
+            duration: _transitionDuration,
+            curve: Curves.easeInOutCubic,
+          )
+          .then((_) {
+            if (mounted) _scheduleAdvance();
+          });
+    });
+  }
+
+  void _pauseAutoplay() {
+    _advanceTimer?.cancel();
+    _advanceTimer = null;
+    _resumeTimer?.cancel();
+    _resumeTimer = null;
+  }
+
+  void _resumeAutoplay(PointerEvent _) {
+    if (!_canAutoplay) return;
+    _resumeTimer?.cancel();
+    _resumeTimer = Timer(_interactionPause, () {
+      _resumeTimer = null;
+      _scheduleAdvance();
+    });
+  }
 
   @override
   void dispose() {
-    _c.dispose();
+    WidgetsBinding.instance.removeObserver(this);
+    _advanceTimer?.cancel();
+    _resumeTimer?.cancel();
+    _controller.dispose();
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        _Appear(
-          anim: _logo,
-          scaleFrom: 0.9,
-          child: const AnimatedHeroOrb(child: BrandLogo(size: 84)),
-        ),
-        const SizedBox(height: 8),
-        _Appear(
-          anim: _title,
-          dy: 0.3,
-          child: LightSweepText(
-            'AM MOTION LAB',
-            style: AppText.mark(44, spacing: 5),
-            delay: const Duration(milliseconds: 900),
-            textAlign: TextAlign.center,
-          ),
-        ),
-        const SizedBox(height: 10),
-        _Appear(
-          anim: _tag,
-          dy: 0.4,
-          child: Text(
-            'LEARN \u2022 CREATE \u2022 EARN',
-            textAlign: TextAlign.center,
-            style: AppText.label.copyWith(letterSpacing: 4, fontSize: 12.5),
-          ),
-        ),
-      ],
-    );
-  }
+  Widget build(BuildContext context) => LayoutBuilder(
+        builder: (context, constraints) {
+          final cardWidth = constraints.maxWidth * .78 < 320
+              ? constraints.maxWidth * .78
+              : 320.0;
+          final viewportFraction = ((cardWidth + 20) / constraints.maxWidth)
+              .clamp(.22, .82)
+              .toDouble();
+          _setViewportFraction(viewportFraction);
+          return Column(
+            children: [
+              SizedBox(
+                height: 280,
+                child: Listener(
+                  onPointerDown: (_) => _pauseAutoplay(),
+                  onPointerUp: _resumeAutoplay,
+                  onPointerCancel: _resumeAutoplay,
+                  child: PageView.builder(
+                    controller: _controller,
+                    itemCount: widget.courses.length > 1
+                        ? null
+                        : widget.courses.length,
+                    onPageChanged: (index) => setState(
+                      () => _page = index % widget.courses.length,
+                    ),
+                    itemBuilder: (context, index) {
+                      final course =
+                          widget.courses[index % widget.courses.length];
+                      final tag = 'course-img-${course.id}-featured';
+                      return Align(
+                        alignment: Alignment.center,
+                        child: SizedBox(
+                          width: cardWidth
+                              .clamp(1.0, constraints.maxWidth - 10)
+                              .toDouble(),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 6),
+                            child: CourseCard(
+                              course: course,
+                              heroTag: tag,
+                              compact: true,
+                              imageAspectRatio: 16 / 9,
+                              onTap: () => CourseDetailScreen.open(
+                                context,
+                                course,
+                                tag,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  for (var index = 0; index < widget.courses.length; index++)
+                    AnimatedContainer(
+                      duration: const Duration(milliseconds: 220),
+                      margin: const EdgeInsets.symmetric(horizontal: 3),
+                      width: _page == index ? 20 : 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color:
+                            _page == index ? AppColors.sky : AppColors.inkFaint,
+                        borderRadius: BorderRadius.circular(99),
+                      ),
+                    ),
+                ],
+              ),
+            ],
+          );
+        },
+      );
 }
 
-class _Appear extends StatelessWidget {
-  const _Appear(
-      {required this.anim,
-      required this.child,
-      this.dy = 0,
-      this.scaleFrom = 1});
-  final Animation<double> anim;
-  final Widget child;
-  final double dy;
-  final double scaleFrom;
+class _HomeProjectHighlights extends StatelessWidget {
+  const _HomeProjectHighlights();
 
   @override
-  Widget build(BuildContext context) {
-    return FadeTransition(
-      opacity: anim,
-      child: SlideTransition(
-        position:
-            Tween<Offset>(begin: Offset(0, dy), end: Offset.zero).animate(anim),
-        child: ScaleTransition(
-          scale: Tween<double>(begin: scaleFrom, end: 1).animate(anim),
-          child: child,
-        ),
-      ),
-    );
+  Widget build(BuildContext context) => FutureBuilder<List<ShowcaseProject>>(
+        future: ShowcaseProjectRepository.load(),
+        builder: (context, snapshot) {
+          if (!snapshot.hasData) return const SizedBox.shrink();
+          return SizedBox(
+            height: 150,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              itemCount: snapshot.data!.length,
+              separatorBuilder: (_, __) => const SizedBox(width: 12),
+              itemBuilder: (context, index) {
+                final project = snapshot.data![index];
+                return SizedBox(
+                  width: 250,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(16),
+                    onTap: () => Navigator.of(context).push(
+                      MaterialPageRoute<void>(
+                        builder: (_) => ProjectShowcaseDetail(project: project),
+                      ),
+                    ),
+                    child: GlassCard(
+                      padding: const EdgeInsets.all(15),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Text(project.category.toUpperCase(),
+                              style: AppText.label),
+                          const SizedBox(height: 5),
+                          Text(project.title, style: AppText.h3),
+                          const SizedBox(height: 4),
+                          Text(project.description,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: AppText.caption),
+                          const Spacer(),
+                          Text('SAMPLE BRIEF', style: AppText.label),
+                        ],
+                      ),
+                    ),
+                  ),
+                );
+              },
+            ),
+          );
+        },
+      );
+}
+
+class _ContinueLearningCard extends StatefulWidget {
+  const _ContinueLearningCard();
+
+  @override
+  State<_ContinueLearningCard> createState() => _ContinueLearningCardState();
+}
+
+class _ContinueLearningCardState extends State<_ContinueLearningCard>
+    with RouteAware {
+  late Future<Set<String>> _progress;
+  ModalRoute<dynamic>? _route;
+
+  @override
+  void initState() {
+    super.initState();
+    _progress = LearningProgressStore.instance.completedCourseLessons;
   }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route == _route) return;
+    if (_route != null) appRouteObserver.unsubscribe(this);
+    _route = route;
+    if (route != null) appRouteObserver.subscribe(this, route);
+  }
+
+  @override
+  void didPopNext() {
+    setState(() {
+      _progress = LearningProgressStore.instance.completedCourseLessons;
+    });
+  }
+
+  @override
+  void dispose() {
+    appRouteObserver.unsubscribe(this);
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => FutureBuilder<Set<String>>(
+        future: _progress,
+        builder: (context, snapshot) {
+          final completed = snapshot.data;
+          if (completed == null || completed.isEmpty) {
+            return const SizedBox.shrink();
+          }
+
+          for (final course in CourseRepository.courses) {
+            final lessons = [
+              for (final module in course.modules)
+                for (final topic in module.topics) topic,
+            ];
+            final done = List<bool>.generate(
+              lessons.length,
+              (index) => completed.contains('${course.id}:lesson-$index'),
+            );
+            final doneCount = done.where((value) => value).length;
+            if (doneCount == 0 || doneCount == lessons.length) continue;
+
+            final nextIndex = done.indexOf(false);
+            return Padding(
+              padding: const EdgeInsets.only(top: 14),
+              child: GlassCard(
+                selected: true,
+                padding: const EdgeInsets.all(15),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('CONTINUE LEARNING', style: AppText.label),
+                    const SizedBox(height: 5),
+                    Text(course.name, style: AppText.h3),
+                    const SizedBox(height: 3),
+                    Text('Next: ${lessons[nextIndex]}', style: AppText.caption),
+                    const SizedBox(height: 10),
+                    AnimatedProgressBar(value: doneCount / lessons.length),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Text('$doneCount of ${lessons.length} demo lessons',
+                            style: AppText.caption),
+                        const Spacer(),
+                        TextButton.icon(
+                          onPressed: () =>
+                              CourseLearningScreen.open(context, course),
+                          icon: const Icon(Icons.play_arrow_rounded),
+                          label: const Text('Resume'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }
+          return const SizedBox.shrink();
+        },
+      );
 }
 
 class _WhyRow extends StatelessWidget {
